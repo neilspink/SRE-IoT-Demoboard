@@ -1,5 +1,5 @@
-#define LED1  23
-#define LED2  22
+#define LED1  22
+#define LED2  23
 #define LED3  26
 #define LED4  4
 #define LED5  15
@@ -17,17 +17,17 @@ bool button(int id)
     int value = touchRead(id);
     if(value <= 40)
     {
-//      Serial.println(value);
+      Serial.println(value);
       delay(1);
     }
     else
     {
       if(i > 0)
       {
-//        Serial.print("False touch on input ");
-//        Serial.print(id);
-//        Serial.print(", iteration ");
-//        Serial.println(i);
+        Serial.print("False touch on input ");
+        Serial.print(id);
+        Serial.print(", iteration ");
+        Serial.println(i);
       }
       return false;
     }
