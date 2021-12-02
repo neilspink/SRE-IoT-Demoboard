@@ -10,7 +10,35 @@
 #define BTN4  T6
 #define BTN5  T5
 
+#include "WiFi.h"
+#include "ESPAsyncWebServer.h"
+
+const char* ssid = "Moody";
+const char* password = "firstclass";
+
+AsyncWebServer server(80);
+
 int score;
+int mood; 
+
+String readScore() {
+  return String(score);
+}
+
+String readMood() {
+  if (score < 37)
+    mood = 5; // Angry
+  else if (score < 62)
+    mood = 4; // Sad
+  else if (score < 87)
+    mood = 3; // OK
+  else if (score < 112)    
+    mood = 2; // Happy
+  else
+    mood = 1; // Super Happy
+      
+  return String(mood);
+}
 
 bool button(int id)
 {
@@ -63,48 +91,64 @@ void setup()
 
   score = 50;
   delay(500);
+
+  Serial.print("Setting AP (Access Point)…");
+  WiFi.softAP(ssid, password);
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+
+  server.on("/score", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", readScore().c_str());
+  });
+
+  server.on("/mood", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", readMood().c_str());
+  });
+
+  server.begin();
 }
 
-bool mood(int mood)
+void updateSecore(int emotiScore)
 {
-  if (score < mood)
+  if (score < emotiScore)
     score = score + 5;
-  else if (score > mood)
+  else if (emotiScore > mood)
     score = score - 5;  
 }
 
 void loop()
 {
   if (button(BTN1)) {
-    mood(125);
+    updateSecore(125);
     digitalWrite(LED1, HIGH); 
   } else {
     digitalWrite(LED1, LOW); 
   }
   
   if (button(BTN2)) {
-    mood(100);
+    updateSecore(100);
     digitalWrite(LED2, HIGH); 
   } else {
     digitalWrite(LED2, LOW); 
   }
   
   if (button(BTN3)) {
-    mood(75);
+    updateSecore(75);
     digitalWrite(LED3, HIGH); 
   } else {
     digitalWrite(LED3, LOW); 
   }
   
   if (button(BTN4)) {
-    mood(50);
+    updateSecore(50);
     digitalWrite(LED4, HIGH); 
   } else {
     digitalWrite(LED4, LOW); 
   }
   
   if (button(BTN5)) {
-    mood(25);
+    updateSecore(25);
     digitalWrite(LED5, HIGH); 
   } else {
     digitalWrite(LED5, LOW); 
